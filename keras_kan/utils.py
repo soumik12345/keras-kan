@@ -74,10 +74,15 @@ def fit_params(
         x_mean = ops.mean(post_fun, axis=[0], keepdims=True)
         y_mean = ops.mean(y, axis=[0], keepdims=True)
         numerator = (
-            ops.sum((post_fun - x_mean) * (y - y_mean)[:, None, None], dim=0) ** 2
+            ops.sum(
+                (post_fun - x_mean)
+                * ops.expand_dims(ops.expand_dims(y - y_mean, axis=-1), axis=-1),
+                dim=0,
+            )
+            ** 2
         )
         denominator = ops.sum((post_fun - x_mean) ** 2, axis=0) * ops.sum(
-            (y - y_mean)[:, None, None] ** 2, axis=0
+            ops.expand_dims(ops.expand_dims(y - y_mean, axis=-1), axis=-1) ** 2, axis=0
         )
         r2 = numerator / (denominator + 1e-4)
         r2 = ops.nan_to_num(r2)
